@@ -6,7 +6,7 @@ const LoginSignup = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    name: '', // Only used for signup
+    name: '', 
   });
 
   const toggleForm = () => {
@@ -21,43 +21,52 @@ const LoginSignup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isLogin) {
-      console.log('Logging in with:', formData);
-      // TODO: Add login API call here
-      // Example:
-      // const response = await fetch('/api/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // });
-    } else {
-      console.log('Signing up with:', formData);
-      // TODO: Add signup API call here
-      // Example:
-      // const response = await fetch('/api/signup', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // });
+    const apiUrl = isLogin
+      ? 'http://localhost:5001/api/auth/login'
+      : 'http://localhost:5001/api/auth/register';
+
+    const payload = isLogin
+      ? { email: formData.email, password: formData.password }
+      : { name: formData.name, email: formData.email, password: formData.password, role: 'jobSeeker' };
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Error:', data.error || 'Something went wrong');
+        alert(data.error || 'Something went wrong');
+      } else {
+        if (isLogin) {
+          localStorage.setItem('token', data.token);
+          alert('Login successful!');
+          //navigate("")
+        } else {
+          alert('Registration successful! You can now log in.');
+          toggleForm();
+        }
+      }
+    } catch (err) {
+      console.error('Fetch error:', err);
+      alert('Network error. Please try again later.');
     }
   };
 
   return (
     <div className="container mt-5">
       <div className="row justify-content-center">
-        
         <div className="col-md-6">
           <div className="card">
             <div className="card-body">
-              <h3 className="card-title text-center">
-                {isLogin ? 'Login' : 'Sign Up'}
-              </h3>
+              <h3 className="card-title text-center">{isLogin ? 'Login' : 'Sign Up'}</h3>
               <form onSubmit={handleSubmit}>
                 {!isLogin && (
                   <div className="mb-3">
-                    <label htmlFor="name" className="form-label">
-                      Name
-                    </label>
+                    <label htmlFor="name" className="form-label">Name</label>
                     <input
                       type="text"
                       className="form-control"
@@ -71,9 +80,7 @@ const LoginSignup = () => {
                   </div>
                 )}
                 <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Email address
-                  </label>
+                  <label htmlFor="email" className="form-label">Email address</label>
                   <input
                     type="email"
                     className="form-control"
@@ -86,9 +93,7 @@ const LoginSignup = () => {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="password" className="form-label">
-                    Password
-                  </label>
+                  <label htmlFor="password" className="form-label">Password</label>
                   <input
                     type="password"
                     className="form-control"
@@ -112,15 +117,8 @@ const LoginSignup = () => {
                   onClick={toggleForm}
                   style={{ textDecoration: 'none' }}
                 >
-                  {isLogin
-                    ? "Don't have an account? Sign Up"
-                    : 'Already have an account? Login'}
+                  {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
                 </button>
-              </div>
-              {/* Placeholder for additional API messages */}
-              <div className="text-center mt-3 text-muted">
-                {/* Example: API messages or errors can be displayed here */}
-                <small>API status will appear here</small>
               </div>
             </div>
           </div>
