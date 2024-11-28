@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Navigate, useNavigate } from 'react-router-dom'; // Import useHistory for navigation
 
 const LoginSignup = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    name: '', 
+    name: '',
   });
+
+  const navigate = useNavigate(); // Hook for navigation
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
@@ -44,7 +47,8 @@ const LoginSignup = () => {
         if (isLogin) {
           localStorage.setItem('token', data.token);
           alert('Login successful!');
-          //navigate("")
+          // Navigate to the home page or dashboard
+          //history.push('/home');
         } else {
           alert('Registration successful! You can now log in.');
           toggleForm();
@@ -54,6 +58,11 @@ const LoginSignup = () => {
       console.error('Fetch error:', err);
       alert('Network error. Please try again later.');
     }
+  };
+
+  const handleAdminLogin = () => {
+    // Navigate to the Admin Login page with the 'employer' role
+    navigate('/admin?role=employer');
   };
 
   return (
@@ -118,6 +127,15 @@ const LoginSignup = () => {
                   style={{ textDecoration: 'none' }}
                 >
                   {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
+                </button>
+              </div>
+              {/* Button to navigate to Admin Login */}
+              <div className="text-center mt-3">
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleAdminLogin}
+                >
+                  Admin Login (Employer)
                 </button>
               </div>
             </div>

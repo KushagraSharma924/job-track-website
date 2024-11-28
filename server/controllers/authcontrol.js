@@ -8,7 +8,13 @@ exports.register = async (req, res) => {
   const user = new User({ name, email, password: hashedPassword, role });
   await user.save();
 
+  if (role == 'jobSeeker'){
   res.status(201).json({ message: 'User registered successfully' });
+  }
+  else {
+    res.status(201).json({ message: 'Admin registered successfully' });
+
+  }
 };
 
 exports.login = async (req, res) => {
