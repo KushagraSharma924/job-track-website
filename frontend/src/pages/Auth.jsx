@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Navigate, useNavigate } from 'react-router-dom'; // Import useHistory for navigation
+import { useNavigate } from 'react-router-dom';
 
 const LoginSignup = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -10,7 +10,7 @@ const LoginSignup = () => {
     name: '',
   });
 
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
@@ -29,7 +29,7 @@ const LoginSignup = () => {
       : 'http://localhost:5001/api/auth/register';
 
     const payload = isLogin
-      ? { email: formData.email, password: formData.password }
+      ? { email: formData.email, password: formData.password, role: 'jobSeeker' } // Add role for login
       : { name: formData.name, email: formData.email, password: formData.password, role: 'jobSeeker' };
 
     try {
@@ -40,15 +40,21 @@ const LoginSignup = () => {
       });
 
       const data = await response.json();
+
       if (!response.ok) {
         console.error('Error:', data.error || 'Something went wrong');
         alert(data.error || 'Something went wrong');
       } else {
         if (isLogin) {
-          localStorage.setItem('token', data.token);
-          alert('Login successful!');
-          // Navigate to the home page or dashboard
-          //history.push('/home');
+          // Ensure only jobSeeker can log in
+          if (data.role === 'jobSeeker') {
+            localStorage.setItem('token', data.token);
+            alert('Login successful!');
+            // Navigate to the job seeker dashboard
+            navigate('/jobSeekerDashboard');
+          } else {
+            alert('Unauthorized. Only job seekers can log in here.');
+          }
         } else {
           alert('Registration successful! You can now log in.');
           toggleForm();
