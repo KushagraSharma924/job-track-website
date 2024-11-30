@@ -20,29 +20,35 @@ const AdminLoginPage = () => {
     const payload = {
       email: formData.email,
       password: formData.password,
+      role: 'employer', // Include the role explicitly
     };
-
+  
     try {
       const response = await fetch('http://localhost:5001/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload), // Pass payload correctly
       });
-
+  
       const data = await response.json();
       if (!response.ok) {
         setError(data.error || 'Something went wrong');
       } else {
-        // Successful login, store the token
-        localStorage.setItem('token', data.token);
-        alert('Login successful!');
-        navigate('/admin-dashboard'); // Redirect to admin dashboard
+        // Successful login
+        if (data.role === 'employer') {
+          localStorage.setItem('token', data.token); // Store the token
+          alert('Login successful!');
+          navigate('/admin-dashboard'); // Redirect to admin dashboard
+        } else {
+          setError('Unauthorized access. Only employers can log in here.');
+        }
       }
     } catch (err) {
       console.error('Login error:', err);
       setError('Network error. Please try again later.');
     }
   };
+  
 
   return (
     <div className="container mt-5">
