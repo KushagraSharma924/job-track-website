@@ -81,3 +81,16 @@ exports.handleApplication = (req, res) => {
     }
   });
 };
+
+exports.getApplication = async (req, res) => {
+  try {
+    if (req.user.role !== 'employer') { // Example role check
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    const applications = await Application.find();
+    res.status(200).json({ applications });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve applications.' });
+  }
+};
+
