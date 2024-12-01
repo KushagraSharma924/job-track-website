@@ -51,7 +51,7 @@ const LoginSignup = () => {
             localStorage.setItem('token', data.token);
             alert('Login successful!');
             // Navigate to the job seeker dashboard
-            navigate('/jobSeekerDashboard');
+            navigate('/dashboard');
           } else {
             alert('Unauthorized. Only job seekers can log in here.');
           }

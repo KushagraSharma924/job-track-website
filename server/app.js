@@ -11,11 +11,16 @@ const applicationRoutes = require('./routes/applicationroutes');
 
 const app = express();
 connectDB();
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({
+  origin: 'http://localhost:5173',  // React frontend URL
+  methods: ['GET', 'POST'],
+}));
 
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
+app.use('/uploads', express.static('uploads'));
+
 
 module.exports = app;

@@ -1,8 +1,8 @@
 const express = require('express');
-const { applyToJob } = require('../controllers/applicationcontrol');
-const { verifyToken, authorizeRole } = require('../middleware/middleware');
 const router = express.Router();
+const { handleApplication } = require('../controllers/applicationcontrol');
+const { verifyToken, authorizeRole } = require('../middleware/middleware');
 
-router.post('/', verifyToken, authorizeRole('jobSeeker'), applyToJob);
+router.post('/', verifyToken, authorizeRole('jobSeeker'), handleApplication);
 
 module.exports = router;
