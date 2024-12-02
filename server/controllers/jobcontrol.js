@@ -17,10 +17,21 @@ exports.postJob = async (req, res) => {
   }
 
   try {
-    const job = new Job({ ...req.body, postedBy: req.user.id, companyEmail: req.user.email });
+    // Check if companyEmail is in request body, if not, use the email from req.user
+    const { title, description, companyEmail } = req.body;
+    const emailToUse = companyEmail || req.user.email; // Use companyEmail from body if provided, else use the logged-in user's email
+
+    const job = new Job({
+      title,
+      description,
+      postedBy: req.user.id,
+      companyEmail: emailToUse,
+    });
+
     await job.save();
     res.status(201).json(job);
   } catch (error) {
     res.status(500).json({ error: 'Failed to post job' });
   }
 };
+

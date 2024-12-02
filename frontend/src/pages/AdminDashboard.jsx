@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const AdminDashboard = () => {
   const [applications, setApplications] = useState([]);
-  const [newJob, setNewJob] = useState({ title: '', description: '' });
+  const [newJob, setNewJob] = useState({ title: '', description: '', companyEmail: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -22,10 +22,9 @@ const AdminDashboard = () => {
         setError('Failed to fetch applications.');
       }
     };
-  
+
     fetchApplications();
   }, []);
-  
 
   const handleJobChange = (e) => {
     setNewJob({ ...newJob, [e.target.name]: e.target.value });
@@ -35,33 +34,33 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token'); // Retrieve the token from localStorage
-    
+
       if (!token) {
         throw new Error('No authentication token found.');
       }
-    
+
       const config = {
         headers: {
           Authorization: `Bearer ${token}`, // Include the token in the Authorization header
         },
       };
-    
+
       await axios.post('http://localhost:5001/api/jobs', newJob, config); // Pass the config with the request
       setSuccess('Job posted successfully!');
-      setNewJob({ title: '', description: '' });
+      setNewJob({ title: '', description: '', companyEmail: '' });
       setError('');
     } catch (err) {
       console.error('Error posting job:', err.message);
       setError('Failed to post job.');
     }
-  }    
+  };
 
   return (
     <div className="container mt-5">
       <h2>Admin Dashboard</h2>
       {success && <div className="alert alert-success">{success}</div>}
       {error && <div className="alert alert-danger">{error}</div>}
-      
+
       {/* Job Posting Form */}
       <form onSubmit={handlePostJob}>
         <div className="mb-3">
@@ -86,6 +85,18 @@ const AdminDashboard = () => {
             onChange={handleJobChange}
             required
           ></textarea>
+        </div>
+        <div className="mb-3">
+          <label htmlFor="companyEmail" className="form-label">Company Email</label>
+          <input
+            type="email"
+            className="form-control"
+            id="companyEmail"
+            name="companyEmail"
+            value={newJob.companyEmail}
+            onChange={handleJobChange}
+            required
+          />
         </div>
         <button type="submit" className="btn btn-primary">Post Job</button>
       </form>

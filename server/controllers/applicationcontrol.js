@@ -1,4 +1,6 @@
+const nodemailer = require('nodemailer');
 const Application = require('../models/application');
+const Job = require('../models/job')
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
@@ -24,13 +26,20 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
 }).single('resume'); // Single file upload for 'resume' field
 
+// Email transporter setup
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 // Handle application submission
 exports.handleApplication = (req, res) => {
-  // Log the received jobId
   const jobId = req.query.jobId;
   console.log('Job ID:', jobId);
 
-  // Check if jobId is missing
   if (!jobId) {
     return res.status(400).json({ error: 'Job ID is required in the query parameters.' });
   }
@@ -44,14 +53,9 @@ exports.handleApplication = (req, res) => {
       return res.status(500).json({ error: 'Unknown error during file upload.', details: err.message });
     }
 
-    // Log request body and file info
-    console.log('Request Body:', req.body);
-    console.log('Uploaded File:', req.file);
-
     try {
       const { name, email } = req.body;
 
-      // Validate input fields
       if (!name || !email) {
         return res.status(400).json({ error: 'Name and email are required fields.' });
       }
@@ -71,17 +75,46 @@ exports.handleApplication = (req, res) => {
       });
 
       const savedApplication = await application.save();
+
+      const job = await Job.findById(jobId); // Await to ensure the job is retrieved
+      
+      if (!job) {
+        return res.status(404).json({ error: 'Job not found.' });
+      }
+
+      const employerEmail = job.companyEmail; // Access the employer's email from the job document
+      
+      if (!employerEmail) {
+        return res.status(400).json({ error: 'Employer email not found for the job.' });
+      }
+      
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: employerEmail,
+        subject: `New Application for Job ID: ${jobId}`,
+        text: `You have received a new application.\n\nName: ${name}\nEmail: ${email}`,
+        attachments: [
+          {
+            filename: req.file.originalname,
+            path: resumePath,
+          },
+        ],
+      };
+
+      await transporter.sendMail(mailOptions);
+
       res.status(201).json({
-        message: 'Application submitted successfully.',
+        message: 'Application submitted successfully and notification sent to employer.',
         application: savedApplication,
       });
     } catch (err) {
-      console.error('Database error:', err);
-      res.status(500).json({ error: 'Failed to save application.', details: err.message });
+      console.error('Error:', err);
+      res.status(500).json({ error: 'Failed to process application.', details: err.message });
     }
   });
 };
 
+// Retrieve all applications
 exports.getApplication = async (req, res) => {
   try {
     if (req.user.role !== 'employer') { // Example role check
@@ -93,4 +126,3 @@ exports.getApplication = async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve applications.' });
   }
 };
-
