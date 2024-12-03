@@ -3,26 +3,32 @@ import axios from 'axios';
 
 const AdminDashboard = () => {
   const [applications, setApplications] = useState([]);
-  const [newJob, setNewJob] = useState({ title: '', description: '', companyEmail: '' });
+  const [newJob, setNewJob] = useState({
+    title: '',
+    description: '',
+    location: '',
+    salary: '',
+    jobType: 'Full-time',
+    requirements: '',
+    companyEmail: '',
+    company: '',
+  });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Fetch applications when the component mounts
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const token = localStorage.getItem('token'); // Replace with your token retrieval logic
+        const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:5001/api/applications/application', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setApplications(response.data.applications);
         setError('');
       } catch (err) {
-        console.error(err.response?.data || err.message);
         setError('Failed to fetch applications.');
       }
     };
-
     fetchApplications();
   }, []);
 
@@ -33,42 +39,51 @@ const AdminDashboard = () => {
   const handlePostJob = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token'); // Retrieve the token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No authentication token found.');
 
-      if (!token) {
-        throw new Error('No authentication token found.');
-      }
-
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      const response = await axios.post(
+        'http://localhost:5001/api/jobs',
+        {
+          ...newJob,
+          requirements: newJob.requirements.split(',').map((req) => req.trim()),
         },
-      };
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-      await axios.post('http://localhost:5001/api/jobs', newJob, config); // Pass the config with the request
-      setSuccess('Job posted successfully!');
-      setNewJob({ title: '', description: '', companyEmail: '' });
-      setError('');
-    } catch (err) {
-      console.error('Error posting job:', err.message);
+      if (response.status === 201) {
+        setSuccess('Job posted successfully!');
+        setNewJob({
+          title: '',
+          description: '',
+          location: '',
+          salary: '',
+          jobType: 'Full-time',
+          requirements: '',
+          companyEmail: '',
+          company: '',
+        });
+        setError('');
+      }
+    } catch {
       setError('Failed to post job.');
     }
   };
 
   return (
     <div className="container mt-5">
-      <h2>Admin Dashboard</h2>
+      <h2 className="text-center">Admin Dashboard</h2>
+
       {success && <div className="alert alert-success">{success}</div>}
       {error && <div className="alert alert-danger">{error}</div>}
 
-      {/* Job Posting Form */}
-      <form onSubmit={handlePostJob}>
+      <form onSubmit={handlePostJob} className="card p-4 shadow-sm mb-5">
+        <h3>Post a New Job</h3>
         <div className="mb-3">
-          <label htmlFor="title" className="form-label">Job Title</label>
+          <label className="form-label">Job Title</label>
           <input
             type="text"
             className="form-control"
-            id="title"
             name="title"
             value={newJob.title}
             onChange={handleJobChange}
@@ -76,10 +91,9 @@ const AdminDashboard = () => {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="description" className="form-label">Description</label>
+          <label className="form-label">Description</label>
           <textarea
             className="form-control"
-            id="description"
             name="description"
             value={newJob.description}
             onChange={handleJobChange}
@@ -87,28 +101,91 @@ const AdminDashboard = () => {
           ></textarea>
         </div>
         <div className="mb-3">
-          <label htmlFor="companyEmail" className="form-label">Company Email</label>
+          <label className="form-label">Location</label>
+          <input
+            type="text"
+            className="form-control"
+            name="location"
+            value={newJob.location}
+            onChange={handleJobChange}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Salary</label>
+          <input
+            type="number"
+            className="form-control"
+            name="salary"
+            value={newJob.salary}
+            onChange={handleJobChange}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Job Type</label>
+          <select
+            className="form-select"
+            name="jobType"
+            value={newJob.jobType}
+            onChange={handleJobChange}
+            required
+          >
+            <option value="Full-time">Full-time</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Contract">Contract</option>
+            <option value="Internship">Internship</option>
+          </select>
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Requirements (comma-separated)</label>
+          <input
+            type="text"
+            className="form-control"
+            name="requirements"
+            value={newJob.requirements}
+            onChange={handleJobChange}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Company Email</label>
           <input
             type="email"
             className="form-control"
-            id="companyEmail"
             name="companyEmail"
             value={newJob.companyEmail}
             onChange={handleJobChange}
             required
           />
         </div>
-        <button type="submit" className="btn btn-primary">Post Job</button>
+        <div className="mb-3">
+          <label className="form-label">Company Name</label>
+          <input
+            type="text"
+            className="form-control"
+            name="company"
+            value={newJob.company}
+            onChange={handleJobChange}
+            required
+          />
+        </div>
+        <button type="submit" className="btn btn-primary w-100">Post Job</button>
       </form>
 
-      {/* Applications List */}
-      <h3 className="mt-5">Applications</h3>
+      <h3>Applications</h3>
       {applications.length > 0 ? (
-        <ul className="list-group">
+        <ul className="list-group shadow-sm">
           {applications.map((app) => (
-            <li className="list-group-item" key={app._id}>
+            <li key={app._id} className="list-group-item">
               <strong>{app.name}</strong> ({app.email})
-              <p><a href={`http://localhost:5001/${app.resume}`} target="_blank" rel="noopener noreferrer">Download Resume</a></p>
+              <a
+                href={`http://localhost:5001/${app.resume}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-link float-end"
+              >
+                Download Resume
+              </a>
             </li>
           ))}
         </ul>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
@@ -6,16 +6,30 @@ const ApplyPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    resume: null,  // Store the uploaded file
+    resume: null,
   });
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
+  const [jobDetails, setJobDetails] = useState(null);
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const jobId = queryParams.get('jobId');  // Fetch jobId from query parameter
-  
-  console.log('Job ID from URL:', jobId);
+  const jobId = queryParams.get('jobId'); // Fetch jobId from query parameter
+
+  useEffect(() => {
+    const fetchJobDetails = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5001/api/jobs/${jobId}`);
+        setJobDetails(response.data);
+      } catch (err) {
+        console.error('Error fetching job details:', err);
+      }
+    };
+
+    if (jobId) {
+      fetchJobDetails();
+    }
+  }, [jobId]);
 
   const handleFileChange = (e) => {
     setFormData({ ...formData, resume: e.target.files[0] });
@@ -23,7 +37,7 @@ const ApplyPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const submissionData = new FormData();
     submissionData.append('name', formData.name);
     submissionData.append('email', formData.email);
@@ -35,18 +49,18 @@ const ApplyPage = () => {
         setError('You are not authorized. Please log in.');
         return;
       }
-  
+
       const response = await axios.post(
-        `http://localhost:5001/api/applications?jobId=${jobId}`,  // Pass jobId in the query string
+        `http://localhost:5001/api/applications?jobId=${jobId}`,
         submissionData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`, // Use Bearer if required
+            'Authorization': `Bearer ${token}`,
           },
         }
       );
-  
+
       if (response.status === 201) {
         setSuccess(response.data.message);
         setError(null);
@@ -62,8 +76,23 @@ const ApplyPage = () => {
 
   return (
     <div className="container mt-5">
-      <h2>Apply for a Job</h2>
-      
+      <h2 className="mb-4">Apply for a Job</h2>
+
+      {jobDetails ? (
+        <div className="card mb-4">
+          <div className="card-header bg-primary text-white">
+            <h4>{jobDetails.title}</h4>
+          </div>
+          <div className="card-body">
+            <p><strong>Company:</strong> {jobDetails.company}</p>
+            <p><strong>Location:</strong> {jobDetails.location}</p>
+            <p><strong>Description:</strong> {jobDetails.description}</p>
+          </div>
+        </div>
+      ) : (
+        <p>Loading job details...</p>
+      )}
+
       <form onSubmit={handleSubmit} className="mt-4">
         <div className="mb-3">
           <label htmlFor="name" className="form-label">Name</label>
@@ -102,7 +131,7 @@ const ApplyPage = () => {
           />
         </div>
 
-        <button type="submit" className="btn btn-primary">Apply</button>
+        <button type="submit" className="btn btn-primary w-100">Apply</button>
       </form>
 
       {success && <div className="alert alert-success mt-3">{success}</div>}
