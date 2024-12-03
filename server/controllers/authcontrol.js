@@ -55,3 +55,22 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.getuser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id); // req.user is set by the verifyToken middleware
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({
+      name: user.name,
+      email: user.email,
+      joinedDate: user.createdAt,
+      membership: user.role === 'jobSeeker' ? 'Basic Member' : 'Premium Member',
+    });
+  } catch (err) {
+    console.error('Error fetching user details:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
+import { Typography, Button, TextField, Card } from '@mui/material';
+import '../styles/LoginSignup.css'; // Add a custom CSS file for styling
 
 const LoginSignup = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -29,7 +31,7 @@ const LoginSignup = () => {
       : 'http://localhost:5001/api/auth/register';
 
     const payload = isLogin
-      ? { email: formData.email, password: formData.password, role: 'jobSeeker' } // Add role for login
+      ? { email: formData.email, password: formData.password, role: 'jobSeeker' }
       : { name: formData.name, email: formData.email, password: formData.password, role: 'jobSeeker' };
 
     try {
@@ -42,15 +44,12 @@ const LoginSignup = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('Error:', data.error || 'Something went wrong');
         alert(data.error || 'Something went wrong');
       } else {
         if (isLogin) {
-          // Ensure only jobSeeker can log in
           if (data.role === 'jobSeeker') {
             localStorage.setItem('token', data.token);
             alert('Login successful!');
-            // Navigate to the job seeker dashboard
             navigate('/dashboard');
           } else {
             alert('Unauthorized. Only job seekers can log in here.');
@@ -61,90 +60,120 @@ const LoginSignup = () => {
         }
       }
     } catch (err) {
-      console.error('Fetch error:', err);
       alert('Network error. Please try again later.');
     }
   };
 
   const handleAdminLogin = () => {
-    // Navigate to the Admin Login page with the 'employer' role
     navigate('/admin?role=employer');
   };
 
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <div className="card">
-            <div className="card-body">
-              <h3 className="card-title text-center">{isLogin ? 'Login' : 'Sign Up'}</h3>
+    <div className="vh-100">
+      {/* Navbar */}
+      <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div className="container">
+          <a className="navbar-brand" href="/">
+            <img src="./public/images/IIC Logo Transarent (Black) [PNG].png" alt="Logo" width="40" height="40" className="d-inline-block align-top me-2" />
+      
+          </a>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav ms-auto">
+              <li className="nav-item">
+                <a className="nav-link" href="/contact">
+                  Contact
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="container-fluid vh-100 d-flex align-items-center">
+        <div className="row w-100">
+          {/* Left Side Section */}
+          <div className="col-md-6 d-flex flex-column justify-content-center bg-light text-center image-container">
+            <Typography variant="h4" gutterBottom>
+              Find your dream job!
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              Trusted by 69+ students
+            </Typography>
+            <div className="mt-4">
+              <img src="./public/images/Screenshot 2024-12-03 at 10.43.23 PM.png" alt="Company Logos" className="full-image" />
+            </div>
+          </div>
+
+          {/* Right Side Section */}
+          <div className="col-md-6 d-flex flex-column justify-content-center">
+            <Card className="p-4 shadow">
+              <Typography variant="h5" className="text-center mb-3">
+                {isLogin ? 'Sign In' : 'Sign Up'}
+              </Typography>
               <form onSubmit={handleSubmit}>
                 {!isLogin && (
-                  <div className="mb-3">
-                    <label htmlFor="name" className="form-label">Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      placeholder="Enter your name"
-                      required
-                    />
-                  </div>
+                  <TextField
+                    label="Name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                    required
+                  />
                 )}
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label">Email address</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Enter your email"
-                    required
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label">Password</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    placeholder="Enter your password"
-                    required
-                  />
-                </div>
-                <div className="d-grid">
-                  <button type="submit" className="btn btn-primary">
-                    {isLogin ? 'Login' : 'Sign Up'}
-                  </button>
-                </div>
+                <TextField
+                  label="Email Address"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                  required
+                />
+                <TextField
+                  label="Password"
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                  required
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  fullWidth
+                  className="mt-3"
+                >
+                  {isLogin ? 'Login' : 'Sign Up'}
+                </Button>
               </form>
               <div className="text-center mt-3">
-                <button
-                  className="btn btn-link"
-                  onClick={toggleForm}
-                  style={{ textDecoration: 'none' }}
-                >
+                <Button color="secondary" onClick={toggleForm}>
                   {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
-                </button>
+                </Button>
               </div>
-              {/* Button to navigate to Admin Login */}
               <div className="text-center mt-3">
-                <button
-                  className="btn btn-secondary"
-                  onClick={handleAdminLogin}
-                >
+                <Button variant="outlined" onClick={handleAdminLogin}>
                   Admin Login (Employer)
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       </div>
