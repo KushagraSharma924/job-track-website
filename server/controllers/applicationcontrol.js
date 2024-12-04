@@ -4,6 +4,8 @@ const Job = require('../models/job')
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const ExcelJS = require('exceljs');
+
 
 // Ensure the 'uploads' directory exists
 const uploadDir = path.join(__dirname, '/uploads');
@@ -54,63 +56,34 @@ exports.handleApplication = (req, res) => {
     }
 
     try {
-      const { name, email } = req.body;
-
-      if (!name || !email) {
-        return res.status(400).json({ error: 'Name and email are required fields.' });
+      const { name, email, year, branch } = req.body;
+    
+      if (!name || !email || !year || !branch) {
+        return res.status(400).json({ error: 'Name, email, year, and branch are required fields.' });
       }
-
+    
       const resumePath = req.file ? req.file.path : null;
-
+    
       if (!resumePath) {
         return res.status(400).json({ error: 'Resume file is required.' });
       }
-
+    
       // Save application to the database
       const application = new Application({
         name,
         email,
         jobId,
+        year,
+        branch,
         resume: resumePath,
       });
-
+    
       const savedApplication = await application.save();
-
-      const job = await Job.findById(jobId); // Await to ensure the job is retrieved
-      
-      if (!job) {
-        return res.status(404).json({ error: 'Job not found.' });
-      }
-
-      const employerEmail = job.companyEmail; // Access the employer's email from the job document
-      
-      if (!employerEmail) {
-        return res.status(400).json({ error: 'Employer email not found for the job.' });
-      }
-      
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: employerEmail,
-        subject: `New Application for Job ID: ${jobId}`,
-        text: `You have received a new application.\n\nName: ${name}\nEmail: ${email}`,
-        attachments: [
-          {
-            filename: req.file.originalname,
-            path: resumePath,
-          },
-        ],
-      };
-
-      await transporter.sendMail(mailOptions);
-
-      res.status(201).json({
-        message: 'Application submitted successfully and notification sent to employer.',
-        application: savedApplication,
-      });
-    } catch (err) {
+      } catch (err) {
       console.error('Error:', err);
       res.status(500).json({ error: 'Failed to process application.', details: err.message });
     }
+    
   });
 };
 
@@ -124,5 +97,54 @@ exports.getApplication = async (req, res) => {
     res.status(200).json({ applications });
   } catch (err) {
     res.status(500).json({ error: 'Failed to retrieve applications.' });
+  }
+};
+
+
+
+exports.exportApplicationsToExcel = async (req, res) => {
+  try {
+    // Ensure only employers or admins can export data
+    if (req.user.role !== 'employer' && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const applications = await Application.find().populate('jobId', 'title company');
+
+    // Create a new workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Applications');
+
+    // Add headers to the worksheet
+    worksheet.columns = [
+      { header: 'Name', key: 'name', width: 20 },
+      { header: 'Email', key: 'email', width: 25 },
+      { header: 'Job Title', key: 'jobTitle', width: 30 },
+      { header: 'Company', key: 'company', width: 25 },
+      { header: 'Year', key: 'year', width: 15 },  // Added Year column
+      { header: 'Branch', key: 'branch', width: 25 },  // Added Branch column
+    ];
+
+    // Add application data to the worksheet
+    applications.forEach((app) => {
+      worksheet.addRow({
+        name: app.name,
+        email: app.email,
+        jobTitle: app.jobId?.title || 'N/A',
+        company: app.jobId?.company || 'N/A',
+        year: app.year || 'N/A',  // Add Year
+        branch: app.branch || 'N/A',  // Add Branch
+      });
+    });
+
+    // Send the Excel file as a response
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=applications.xlsx');
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (err) {
+    console.error('Error exporting applications:', err);
+    res.status(500).json({ error: 'Failed to export applications to Excel.' });
   }
 };

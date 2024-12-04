@@ -6,6 +6,7 @@ import JobPage from './pages/JobPage';
 import ApplyPage from './pages/ApplyPage';
 import AdminDashboard from './pages/AdminDashboard';
 import MyAccount from './components/myaccount';
+import DownloadPage from './components/download';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/dashboard" element={<JobPage />} />
         <Route path="/apply" element={<ApplyPage />} />
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
+      <Route path="/download" element={<DownloadPage/>} />
       <Route path="/account" element={<MyAccount />} />
 
       </Routes>

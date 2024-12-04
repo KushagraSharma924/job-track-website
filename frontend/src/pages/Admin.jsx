@@ -1,44 +1,61 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
+import {
+  Typography,
+  Button,
+  TextField,
+  Card,
+  CardContent,
+  Box,
+  Grid,
+} from '@mui/material';
 
 const AdminLoginPage = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [signupData, setSignupData] = useState({
+    email: '',
+    password: '',
+  });
   const [error, setError] = useState('');
+  const [isSignup, setIsSignup] = useState(false);
   const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e, type) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (type === 'login') {
+      setFormData({ ...formData, [name]: value });
+    } else {
+      setSignupData({ ...signupData, [name]: value });
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmitLogin = async (e) => {
     e.preventDefault();
     const payload = {
       email: formData.email,
       password: formData.password,
-      role: 'employer', // Include the role explicitly
+      role: 'employer',
     };
-  
+
     try {
       const response = await fetch('http://localhost:5001/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload), // Pass payload correctly
+        body: JSON.stringify(payload),
       });
-  
+
       const data = await response.json();
       if (!response.ok) {
         setError(data.error || 'Something went wrong');
       } else {
-        // Successful login
         if (data.role === 'employer') {
-          localStorage.setItem('token', data.token); // Store the token
+          localStorage.setItem('token', data.token);
           alert('Login successful!');
-          navigate('/admin-dashboard'); // Redirect to admin dashboard
+          navigate('/admin-dashboard');
         } else {
           setError('Unauthorized access. Only employers can log in here.');
         }
@@ -48,54 +65,162 @@ const AdminLoginPage = () => {
       setError('Network error. Please try again later.');
     }
   };
-  
+
+  const handleSubmitSignup = async (e) => {
+    e.preventDefault();
+    const payload = {
+      email: signupData.email,
+      password: signupData.password,
+      role: 'employer',
+    };
+
+    try {
+      const response = await fetch('http://localhost:5001/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || 'Something went wrong');
+      } else {
+        alert('Signup successful! You can now log in.');
+        setIsSignup(false); // Switch to login after signup
+      }
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('Network error. Please try again later.');
+    }
+  };
 
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <div className="card">
-            <div className="card-body">
-              <h3 className="card-title text-center">Admin Login (Employer)</h3>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label">Email address</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'row',
+      }}
+    >
+      {/* Left Section */}
+      <Box
+        sx={{
+          flex: 1,
+          backgroundColor: '#f9fafb',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          px: 4,
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{ mb: 3, fontWeight: 'bold', textAlign: 'center' }}
+        >
+          Hire the Best Talent
+        </Typography>
+        <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
+          Trusted by 69+ students
+        </Typography>
+      </Box>
+
+      {/* Right Section */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          px: 4,
+        }}
+      >
+        <Grid container justifyContent="center">
+          <Grid item xs={12} sm={8} md={6}>
+            <Card
+              sx={{
+                borderRadius: '15px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                overflow: 'hidden',
+              }}
+            >
+              <CardContent>
+                <Typography
+                  variant="h5"
+                  color="primary"
+                  align="center"
+                  sx={{ mb: 2 }}
+                >
+                  {isSignup ? 'Sign Up' : 'Sign In'}
+                </Typography>
+                <form onSubmit={isSignup ? handleSubmitSignup : handleSubmitLogin}>
+                  <TextField
+                    label="Email Address"
                     name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Enter your email"
+                    value={isSignup ? signupData.email : formData.email}
+                    onChange={(e) => handleInputChange(e, isSignup ? 'signup' : 'login')}
+                    fullWidth
+                    margin="normal"
                     required
                   />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label">Password</label>
-                  <input
+                  <TextField
+                    label="Password"
                     type="password"
-                    className="form-control"
-                    id="password"
                     name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    placeholder="Enter your password"
+                    value={isSignup ? signupData.password : formData.password}
+                    onChange={(e) => handleInputChange(e, isSignup ? 'signup' : 'login')}
+                    fullWidth
+                    margin="normal"
                     required
                   />
-                </div>
-                {error && <div className="alert alert-danger">{error}</div>}
-                <div className="d-grid">
-                  <button type="submit" className="btn btn-primary">
-                    Login as Employer
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+                  {error && (
+                    <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+                      {error}
+                    </Typography>
+                  )}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    fullWidth
+                    sx={{
+                      mt: 3,
+                      py: 1.5,
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {isSignup ? 'Sign Up' : 'Login'}
+                  </Button>
+                </form>
+                {!isSignup && (
+                  <Typography
+                    variant="body2"
+                    color="primary"
+                    align="center"
+                    sx={{ mt: 2, cursor: 'pointer' }}
+                    onClick={() => setIsSignup(true)}
+                  >
+                    Don't have an account? Sign Up
+                  </Typography>
+                )}
+                {isSignup && (
+                  <Typography
+                    variant="body2"
+                    color="primary"
+                    align="center"
+                    sx={{ mt: 2, cursor: 'pointer' }}
+                    onClick={() => setIsSignup(false)}
+                  >
+                    Already have an account? Log In
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
   );
 };
 

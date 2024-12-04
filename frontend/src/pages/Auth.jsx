@@ -73,9 +73,15 @@ const LoginSignup = () => {
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
         <div className="container">
-          <a className="navbar-brand" href="/">
-            <img src="./public/images/IIC Logo Transarent (Black) [PNG].png" alt="Logo" width="40" height="40" className="d-inline-block align-top me-2" />
-      
+          <a className="navbar-brand d-flex align-items-center" href="/">
+            <img
+              src="./public/images/IIC Logo Transarent (Black) [PNG].png"
+              alt="Logo"
+              width="60"
+              height="60"
+              className="me-3"
+            />
+            <h4 className="mb-0">Internship Fair</h4>
           </a>
           <button
             className="navbar-toggler"
@@ -177,6 +183,28 @@ const LoginSignup = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-dark text-white text-center py-4 mt-auto">
+        <div className="container">
+          <img
+            src="./public/images/IIC Logo Transarent (Black) [PNG].png"
+            alt="Footer Logo"
+            width="50"
+            height="50"
+            className="mb-3"
+          />
+          <p>&copy; {new Date().getFullYear()} Dream Jobs. All rights reserved.</p>
+          <div>
+            <a href="/terms" className="text-white me-3">
+              Terms of Service
+            </a>
+            <a href="/privacy" className="text-white">
+              Privacy Policy
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

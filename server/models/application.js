@@ -5,6 +5,8 @@ const applicationSchema = new mongoose.Schema({
   email: { type: String, required: true },
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
   resume: { type: String, required: true }, // Path to the resume file
+  year: { type: String, required: true },
+  branch: { type: String, required: true },
 
 });
 
