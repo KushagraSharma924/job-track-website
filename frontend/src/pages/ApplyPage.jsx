@@ -20,7 +20,7 @@ const ApplyPage = () => {
   const [jobDetails, setJobDetails] = useState(null);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false); // Track form submission status
+  const [isSubmitted, setIsSubmitted] = useState(false); 
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -78,7 +78,7 @@ const ApplyPage = () => {
         setSuccessMessage('Application submitted successfully!');
         setIsSubmitted(true);
         setTimeout(() => {
-          navigate('/dashboard'); // Redirect to the dashboard
+          navigate('/dashboard'); 
         }, 3000);
       } else {
         setError(response.data.error || 'Failed to submit application.');

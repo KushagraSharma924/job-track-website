@@ -12,7 +12,7 @@ exports.getAllJobs = async (req, res) => {
 
 //////
 exports.postJob = async (req, res) => {
-  // Ensure only employers can post jobs
+  // ///
   if (req.user.role !== 'employer') {
     return res.status(403).json({ error: 'Only employers can post jobs' });
   }
@@ -29,10 +29,10 @@ exports.postJob = async (req, res) => {
       company,
     } = req.body;
 
-    // Use the email from request body if provided, otherwise fallback to user's email
+    
     const emailToUse = companyEmail || req.user.email;
 
-    // Create a new job with all required fields
+    // 
     const job = new Job({
       title,
       description,
@@ -45,7 +45,7 @@ exports.postJob = async (req, res) => {
       company,
     });
 
-    // Save the job to the database
+    // save
     await job.save();
 
     res.status(201).json(job);

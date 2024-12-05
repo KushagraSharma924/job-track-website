@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // For making API requests
-import { FaEdit, FaTrash } from "react-icons/fa"; // For Edit and Delete Icons
+import axios from "axios"; 
+import { FaEdit, FaTrash } from "react-icons/fa"; 
 
 const MyAccount = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is logged in by looking for a token
+   
     const token = localStorage.getItem("token");
 
-    // If no token, redirect to login page
+    
     if (!token) {
       navigate("/");
     } else {
-      // Fetch user details from the backend
+      
       axios
         .get("http://localhost:5001/api/auth/user", {
           headers: { Authorization: `Bearer ${token}` },
@@ -27,14 +27,14 @@ const MyAccount = () => {
         .catch((error) => {
           console.error("Error fetching user details:", error);
           if (error.response && error.response.status === 403) {
-            navigate("/"); // Redirect if token is invalid
+            navigate("/"); 
           }
         });
     }
   }, [navigate]);
 
   if (!user) {
-    return <div className="d-flex justify-content-center mt-5">Loading...</div>; // Show loading while user data is being fetched
+    return <div className="d-flex justify-content-center mt-5">Loading...</div>; 
   }
 
   return (

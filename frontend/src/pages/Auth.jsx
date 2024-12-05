@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { Typography, Button, TextField, Card } from '@mui/material';
-import '../styles/LoginSignup.css'; // Add a custom CSS file for styling
+import '../styles/LoginSignup.css'; 
 
 const LoginSignup = () => {
   const [isLogin, setIsLogin] = useState(true);

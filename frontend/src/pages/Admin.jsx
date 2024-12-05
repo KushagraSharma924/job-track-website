@@ -86,7 +86,7 @@ const AdminLoginPage = () => {
         setError(data.error || 'Something went wrong');
       } else {
         alert('Signup successful! You can now log in.');
-        setIsSignup(false); // Switch to login after signup
+        setIsSignup(false); 
       }
     } catch (err) {
       console.error('Signup error:', err);

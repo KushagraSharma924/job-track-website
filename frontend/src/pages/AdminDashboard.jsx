@@ -24,11 +24,11 @@ const AdminDashboard = () => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decodedToken = jwtDecode(token); // Decode the JWT token
-        console.log('Decoded Token:', decodedToken); // Debugging purpose
+        const decodedToken = jwtDecode(token); 
+        console.log('Decoded Token:', decodedToken); 
         
-        const userRole = decodedToken?.role; // Safely access 'role'
-        const userid = decodedToken?.id; // Safely access 'email'
+        const userRole = decodedToken?.role; 
+        const userid = decodedToken?.id;
 
         // Check user role
         if (userRole === 'admin') {

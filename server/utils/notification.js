@@ -19,8 +19,8 @@ exports.sendApplicationEmail = async (companyEmail, applicant, job) => {
       text: `You have a new application from ${applicant.name} (${applicant.email}).`,
       attachments: [
         {
-          filename: applicant.resume.name, // Use the resume file name
-          content: fs.createReadStream(path.join(__dirname, 'uploads', applicant.resume.name)), // Path to the resume file on the server
+          filename: applicant.resume.name, 
+          content: fs.createReadStream(path.join(__dirname, 'uploads', applicant.resume.name)), 
         },
       ],
     };

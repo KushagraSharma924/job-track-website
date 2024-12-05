@@ -11,7 +11,6 @@ const JobPage = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const navigate = useNavigate();
 
-  // Fetch jobs on component mount
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -25,19 +24,15 @@ const JobPage = () => {
     fetchJobs();
   }, []);
 
-  // Filter jobs whenever stipend range or search keyword changes
   useEffect(() => {
     const applyFilters = () => {
       const filtered = jobs.filter((job) => {
-        // Stipend filter logic
         const stipendMatch = job.salary >= stipendRange[0] && job.salary <= stipendRange[1];
   
-        // Ensure requirements is a string for searching
         const requirements = Array.isArray(job.requirements)
           ? job.requirements.join(', ')
           : job.requirements || '';
   
-        // Keyword filter logic (search across multiple fields)
         const keyword = searchKeyword.toLowerCase();
         const keywordMatch =
           searchKeyword === '' ||

@@ -2,7 +2,7 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Registration Endpoint
+
 exports.register = async (req, res) => {
   const { name, email, password, role } = req.body;
 
@@ -26,9 +26,9 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login Endpoint
+
 exports.login = async (req, res) => {
-  const { email, password, role } = req.body; // Role added to the request payload
+  const { email, password, role } = req.body; 
 
   try {
     const user = await User.findOne({ email });
@@ -36,18 +36,18 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // Validate password
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // Validate role
+  
     if (role && user.role !== role) {
       return res.status(403).json({ error: `Unauthorized. This login requires ${role} role.` });
     }
 
-    // Generate JWT token
+    
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET);
     res.json({ token ,role});
   } catch (err) {
@@ -58,7 +58,7 @@ exports.login = async (req, res) => {
 
 exports.getuser = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id); // req.user is set by the verifyToken middleware
+    const user = await User.findById(req.user.id); 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }

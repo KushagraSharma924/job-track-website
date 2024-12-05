@@ -6,28 +6,26 @@ const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
 
-// Ensure the 'uploads' directory exists
 const uploadDir = path.join(__dirname, '/uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Setup multer to handle file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir); // Save to the 'uploads' folder
+    cb(null, uploadDir); 
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`); // Name the file with a timestamp
+    cb(null, `${Date.now()}-${file.originalname}`); 
   },
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
-}).single('resume'); // Single file upload for 'resume' field
+  limits: { fileSize: 5 * 1024 * 1024 },
+}).single('resume'); 
 
-// Email transporter setup
+
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
@@ -36,7 +34,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Handle application submission
+
 exports.handleApplication = (req, res) => {
   const jobId = req.query.jobId;
   console.log('Job ID:', jobId);
@@ -79,18 +77,18 @@ exports.handleApplication = (req, res) => {
 
       const savedApplication = await application.save();
 
-      // Fetch the company details from the Job model
-      const job = await Job.findById(jobId);  // No need to populate('company')
-const companyEmail = job.companyEmail;  // Access the email directly from the Job model
+      
+      const job = await Job.findById(jobId);  
+const companyEmail = job.companyEmail;  
 
 if (!companyEmail) {
   return res.status(500).json({ error: 'Company email not found.' });
 }
 
-      // Send email with application details and resume
+      
       const mailOptions = {
-        from: email, // Use applicant's email as the sender
-        to: companyEmail, // Send email to the company's email
+        from: email, 
+        to: companyEmail, 
         subject: `New Job Application for ${savedApplication.jobId}`,
         text: `
           New application submitted:
@@ -125,10 +123,9 @@ if (!companyEmail) {
   });
 };
 
-// Retrieve all applications
 exports.getApplication = async (req, res) => {
   try {
-    if (req.user.role !== 'employer') { // Example role check
+    if (req.user.role !== 'employer') { 
       return res.status(403).json({ error: 'Access denied' });
     }
     const applications = await Application.find();
@@ -138,7 +135,7 @@ exports.getApplication = async (req, res) => {
   }
 };
 
-// Export applications to Excel
+
 exports.exportApplicationsToExcel = async (req, res) => {
   try {
     if (req.user.role !== 'employer' && req.user.role !== 'admin') {

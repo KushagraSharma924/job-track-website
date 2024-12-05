@@ -5,12 +5,12 @@ const Navbar = ({ onLogout }) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
       <div className="container">
-        {/* Logo on the left */}
+        
         <a className="navbar-brand" href="#">
           MyBrand
         </a>
 
-        {/* Toggle button for mobile view */}
+       
         <button
           className="navbar-toggler"
           type="button"
@@ -23,7 +23,7 @@ const Navbar = ({ onLogout }) => {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Navbar links */}
+        
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item me-2">

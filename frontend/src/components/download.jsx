@@ -13,7 +13,7 @@ const DownloadPage = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        responseType: "blob", // Ensure the response is treated as a file (binary data)
+        responseType: "blob", 
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
