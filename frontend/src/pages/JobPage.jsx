@@ -61,7 +61,7 @@ const JobPage = () => {
       <AppBar position="sticky">
         <Toolbar>
           <img
-            src="/images/IIC Logo Transarent (Black) [PNG].png"
+            src="../images/IIC Logo Transarent (Black) [PNG].png"
             alt="Job Portal Logo"
             style={{
               height: '100%',

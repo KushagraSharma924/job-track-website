@@ -75,7 +75,7 @@ const LoginSignup = () => {
         <div className="container">
           <a className="navbar-brand d-flex align-items-center" href="/">
             <img
-              src="./public/images/IIC Logo Transarent (Black) [PNG].png"
+              src="../images/IIC Logo Transarent (Black) [PNG].png"
               alt="Logo"
               width="60"
               height="60"
@@ -118,7 +118,7 @@ const LoginSignup = () => {
               Trusted by 69+ students
             </Typography>
             <div className="mt-4">
-              <img src="./public/images/Screenshot 2024-12-03 at 10.43.23 PM.png" alt="Company Logos" className="full-image" />
+              <img src="../images/Screenshot 2024-12-03 at 10.43.23 PM.png" alt="Company Logos" className="full-image" />
             </div>
           </div>
 
@@ -188,7 +188,7 @@ const LoginSignup = () => {
       <footer className="bg-dark text-white text-center py-4 mt-auto">
         <div className="container">
           <img
-            src="./public/images/IIC Logo Transarent (Black) [PNG].png"
+            src="../images/IIC Logo Transarent (Black) [PNG].png"
             alt="Footer Logo"
             width="50"
             height="50"
