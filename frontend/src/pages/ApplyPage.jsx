@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Snackbar, Alert } from '@mui/material';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
+import Alert from '@mui/material/Alert';
 
 const ApplyPage = () => {
   const [formData, setFormData] = useState({
@@ -19,9 +19,8 @@ const ApplyPage = () => {
   });
   const [jobDetails, setJobDetails] = useState(null);
   const [error, setError] = useState(null);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success' or 'error'
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false); // Track form submission status
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -49,6 +48,7 @@ const ApplyPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const submissionData = new FormData();
     submissionData.append('name', formData.name);
     submissionData.append('email', formData.email);
@@ -74,33 +74,19 @@ const ApplyPage = () => {
         }
       );
 
-
-      if (response.status === 201) {
-        setSnackbarMessage('Application submitted successfully!');
-        setSnackbarSeverity('success');
-        setOpenSnackbar(openSnackbar);
+      if (response.status === 200) {
+        setSuccessMessage('Application submitted successfully!');
+        setIsSubmitted(true);
         setTimeout(() => {
           navigate('/dashboard'); // Redirect to the dashboard
         }, 3000);
       } else {
         setError(response.data.error || 'Failed to submit application.');
-        setSnackbarMessage(response.data.error || 'Failed to submit application.');
-        setSnackbarSeverity('error');
-        setOpenSnackbar(true);
       }
     } catch (err) {
       console.error('Error during submission:', err.response || err.message);
       setError(err.response?.data?.error || 'An unexpected error occurred.');
-      setSnackbarMessage(err.response?.data?.error || 'An unexpected error occurred.');
-      setSnackbarSeverity('error');
-      setOpenSnackbar(true);
     }
-  };
-
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(true);
-
   };
 
   return (
@@ -129,6 +115,12 @@ const ApplyPage = () => {
               <p><strong>Company:</strong> {jobDetails.company}</p>
               <p><strong>Location:</strong> {jobDetails.location}</p>
               <p><strong>Description:</strong> {jobDetails.description}</p>
+              <p><strong>Job Requirements:</strong></p>
+              <ul>
+                {jobDetails.requirements?.map((req, index) => (
+                  <li key={index}>{req}</li>
+                ))}
+              </ul>
             </div>
           </div>
         ) : (
@@ -199,22 +191,14 @@ const ApplyPage = () => {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary w-100">Apply</button>
+          <button type="submit" className="btn btn-primary" disabled={isSubmitted}>
+            {isSubmitted ? 'Submitting...' : 'Submit Application'}
+          </button>
         </form>
 
-        {error && <div className="alert alert-danger mt-3">{error}</div>}
+        {error && <Alert severity="error" className="mt-4">{error}</Alert>}
+        {successMessage && <Alert severity="success" className="mt-4">{successMessage}</Alert>}
       </Container>
-
-      {/* Snackbar Notification */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </div>
   );
 };

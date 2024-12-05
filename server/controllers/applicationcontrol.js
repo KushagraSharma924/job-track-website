@@ -1,11 +1,10 @@
 const nodemailer = require('nodemailer');
 const Application = require('../models/application');
-const Job = require('../models/job')
+const Job = require('../models/job');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
-
 
 // Ensure the 'uploads' directory exists
 const uploadDir = path.join(__dirname, '/uploads');
@@ -57,17 +56,17 @@ exports.handleApplication = (req, res) => {
 
     try {
       const { name, email, year, branch } = req.body;
-    
+
       if (!name || !email || !year || !branch) {
         return res.status(400).json({ error: 'Name, email, year, and branch are required fields.' });
       }
-    
+
       const resumePath = req.file ? req.file.path : null;
-    
+
       if (!resumePath) {
         return res.status(400).json({ error: 'Resume file is required.' });
       }
-    
+
       // Save application to the database
       const application = new Application({
         name,
@@ -77,13 +76,52 @@ exports.handleApplication = (req, res) => {
         branch,
         resume: resumePath,
       });
-    
+
       const savedApplication = await application.save();
-      } catch (err) {
+
+      // Fetch the company details from the Job model
+      const job = await Job.findById(jobId);  // No need to populate('company')
+const companyEmail = job.companyEmail;  // Access the email directly from the Job model
+
+if (!companyEmail) {
+  return res.status(500).json({ error: 'Company email not found.' });
+}
+
+      // Send email with application details and resume
+      const mailOptions = {
+        from: email, // Use applicant's email as the sender
+        to: companyEmail, // Send email to the company's email
+        subject: `New Job Application for ${savedApplication.jobId}`,
+        text: `
+          New application submitted:
+          Name: ${savedApplication.name}
+          Email: ${savedApplication.email}
+          Year: ${savedApplication.year}
+          Branch: ${savedApplication.branch}
+          Job ID: ${savedApplication.jobId}
+        `,
+        attachments: [
+          {
+            filename: req.file.originalname,
+            path: req.file.path,
+          },
+        ],
+      };
+
+      transporter.sendMail(mailOptions, (emailError, info) => {
+        if (emailError) {
+          console.error('Email error:', emailError);
+          return res.status(500).json({ error: 'Failed to send application email.' });
+        }
+        console.log('Email sent:', info.response);
+      });
+
+      return res.status(200).json({ message: 'Application submitted successfully!' });
+
+    } catch (err) {
       console.error('Error:', err);
       res.status(500).json({ error: 'Failed to process application.', details: err.message });
     }
-    
   });
 };
 
@@ -100,44 +138,38 @@ exports.getApplication = async (req, res) => {
   }
 };
 
-
-
+// Export applications to Excel
 exports.exportApplicationsToExcel = async (req, res) => {
   try {
-    // Ensure only employers or admins can export data
     if (req.user.role !== 'employer' && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
     const applications = await Application.find().populate('jobId', 'title company');
 
-    // Create a new workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Applications');
 
-    // Add headers to the worksheet
     worksheet.columns = [
       { header: 'Name', key: 'name', width: 20 },
       { header: 'Email', key: 'email', width: 25 },
       { header: 'Job Title', key: 'jobTitle', width: 30 },
       { header: 'Company', key: 'company', width: 25 },
-      { header: 'Year', key: 'year', width: 15 },  // Added Year column
-      { header: 'Branch', key: 'branch', width: 25 },  // Added Branch column
+      { header: 'Year', key: 'year', width: 15 },
+      { header: 'Branch', key: 'branch', width: 25 },
     ];
 
-    // Add application data to the worksheet
     applications.forEach((app) => {
       worksheet.addRow({
         name: app.name,
         email: app.email,
         jobTitle: app.jobId?.title || 'N/A',
         company: app.jobId?.company || 'N/A',
-        year: app.year || 'N/A',  // Add Year
-        branch: app.branch || 'N/A',  // Add Branch
+        year: app.year || 'N/A',
+        branch: app.branch || 'N/A',
       });
     });
 
-    // Send the Excel file as a response
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename=applications.xlsx');
 

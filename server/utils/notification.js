@@ -1,4 +1,6 @@
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -9,12 +11,23 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.sendApplicationEmail = async (companyEmail, applicant, job) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: companyEmail,
-    subject: `New Application for ${job.title}`,
-    text: `You have a new application from ${applicant.name} (${applicant.email}). Resume: ${applicant.resumeUrl}`,
-  };
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: companyEmail,
+      subject: `New Application for ${job.title}`,
+      text: `You have a new application from ${applicant.name} (${applicant.email}).`,
+      attachments: [
+        {
+          filename: applicant.resume.name, // Use the resume file name
+          content: fs.createReadStream(path.join(__dirname, 'uploads', applicant.resume.name)), // Path to the resume file on the server
+        },
+      ],
+    };
 
-  await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
+    console.log('Application email sent successfully.');
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
 };
