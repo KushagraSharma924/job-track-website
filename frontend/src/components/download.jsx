@@ -9,7 +9,7 @@ const DownloadPage = () => {
         throw new Error("No token found");
       }
 
-      const response = await axios.get("https://job-web-backend-2srf.onrender.com/api/applications/export", {
+      const response = await axios.get("https://job-web-backend-2srf.onrender.com", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

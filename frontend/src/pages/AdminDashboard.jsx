@@ -61,7 +61,7 @@ const AdminDashboard = () => {
       if (!token) throw new Error('No authentication token found.');
 
       const response = await axios.post(
-        'https://job-web-backend-2srf.onrender.com/api/jobs',
+        'https://job-web-backend-2srf.onrender.com',
         {
           ...newJob,
           requirements: newJob.requirements.split(',').map((req) => req.trim()),

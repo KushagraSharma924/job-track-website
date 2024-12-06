@@ -42,7 +42,7 @@ const AdminLoginPage = () => {
     };
 
     try {
-      const response = await fetch('https://job-web-backend-2srf.onrender.com/api/auth/login', {
+      const response = await fetch('https://job-web-backend-2srf.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -75,7 +75,7 @@ const AdminLoginPage = () => {
     };
 
     try {
-      const response = await fetch('https://job-web-backend-2srf.onrender.com/api/auth/register', {
+      const response = await fetch('https://job-web-backend-2srf.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
