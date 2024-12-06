@@ -14,7 +14,7 @@ connectDB();
 
 // Apply CORS
 app.use(cors({
-  origin: 'http://localhost:5173',  // React frontend URL
+  origin: 'https://job-web-backend-2srf.onrender.com',  // React frontend URL
   methods: ['GET', 'POST'],
 }));
 
