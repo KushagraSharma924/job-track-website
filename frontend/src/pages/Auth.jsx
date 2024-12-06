@@ -27,8 +27,8 @@ const LoginSignup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const apiUrl = isLogin
-      ? 'https://job-web-backend-2srf.onrender.com'
-      : 'https://job-web-backend-2srf.onrender.com';
+      ? 'https://job-web-backend-2srf.onrender.com/api/auth/login'
+      : 'https://job-web-backend-2srf.onrender.com/api/auth/register';
 
     const payload = isLogin
       ? { email: formData.email, password: formData.password, role: 'jobSeeker' }

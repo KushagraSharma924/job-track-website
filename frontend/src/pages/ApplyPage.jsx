@@ -30,7 +30,7 @@ const ApplyPage = () => {
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const response = await axios.get(`https://job-web-backend-2srf.onrender.com`);
+        const response = await axios.get(`https://job-web-backend-2srf.onrender.com/api/jobs/${jobId}`);
         setJobDetails(response.data);
       } catch (err) {
         console.error('Error fetching job details:', err);
@@ -64,7 +64,7 @@ const ApplyPage = () => {
       }
 
       const response = await axios.post(
-        `https://job-web-backend-2srf.onrender.com`,
+        `https://job-web-backend-2srf.onrender.com/api/applications?jobId=${jobId}`,
         submissionData,
         {
           headers: {

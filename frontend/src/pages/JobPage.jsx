@@ -14,7 +14,7 @@ const JobPage = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await axios.get('https://job-web-backend-2srf.onrender.com');
+        const response = await axios.get('https://job-web-backend-2srf.onrender.com/api/jobs');
         setJobs(response.data);
         setFilteredJobs(response.data);
       } catch (err) {

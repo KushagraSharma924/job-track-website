@@ -18,7 +18,7 @@ const MyAccount = () => {
     } else {
       
       axios
-        .get("https://job-web-backend-2srf.onrender.com", {
+        .get("https://job-web-backend-2srf.onrender.com/api/auth/user", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
