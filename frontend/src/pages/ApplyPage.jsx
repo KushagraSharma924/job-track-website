@@ -27,6 +27,7 @@ const ApplyPage = () => {
   const queryParams = new URLSearchParams(location.search);
   const jobId = queryParams.get('jobId');
 
+  // Fetching job details
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
@@ -34,6 +35,7 @@ const ApplyPage = () => {
         setJobDetails(response.data);
       } catch (err) {
         console.error('Error fetching job details:', err);
+        setError('Error fetching job details');
       }
     };
 
@@ -63,6 +65,7 @@ const ApplyPage = () => {
         return;
       }
 
+      setIsSubmitted(true);
       const response = await axios.post(
         `https://job-web-backend-2srf.onrender.com/api/applications?jobId=${jobId}`,
         submissionData,
@@ -76,16 +79,17 @@ const ApplyPage = () => {
 
       if (response.status === 200) {
         setSuccessMessage('Application submitted successfully!');
-        setIsSubmitted(true);
         setTimeout(() => {
-          navigate('/dashboard'); 
+          navigate('/dashboard');
         }, 3000);
       } else {
         setError(response.data.error || 'Failed to submit application.');
       }
     } catch (err) {
-      console.error('Error during submission:', err.response || err.message);
+      console.error('Error during submission:', err);
       setError(err.response?.data?.error || 'An unexpected error occurred.');
+    } finally {
+      setIsSubmitted(false);
     }
   };
 

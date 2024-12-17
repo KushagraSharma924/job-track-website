@@ -28,11 +28,11 @@ const JobPage = () => {
     const applyFilters = () => {
       const filtered = jobs.filter((job) => {
         const stipendMatch = job.salary >= stipendRange[0] && job.salary <= stipendRange[1];
-  
+
         const requirements = Array.isArray(job.requirements)
           ? job.requirements.join(', ')
           : job.requirements || '';
-  
+
         const keyword = searchKeyword.toLowerCase();
         const keywordMatch =
           searchKeyword === '' ||
@@ -40,16 +40,16 @@ const JobPage = () => {
           job.company.toLowerCase().includes(keyword) ||
           job.description.toLowerCase().includes(keyword) ||
           requirements.toLowerCase().includes(keyword);
-  
+
         return stipendMatch && keywordMatch;
       });
-  
+
       setFilteredJobs(filtered);
     };
-  
+
     applyFilters();
   }, [stipendRange, searchKeyword, jobs]);
-  
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/');
@@ -73,6 +73,9 @@ const JobPage = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             InternShip Fair
           </Typography>
+          <Button color="inherit" onClick={() => navigate('/mydashboard')}>
+            My Dashboard
+          </Button>
           <Button color="inherit" onClick={handleLogout}>
             Logout
           </Button>
